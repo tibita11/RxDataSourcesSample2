@@ -21,8 +21,17 @@ class MainViewController: UIViewController {
     let dataSource = RxTableViewSectionedReloadDataSource<SectionModel>(configureCell: {
         (dataSource, tableview, indexPath, item) in
         let cell = tableview.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        if indexPath.section == 0 {
+            // section1の場合
+            cell.accessoryType = .disclosureIndicator
+        } else {
+            // section1以外はタップ不可
+            cell.isUserInteractionEnabled = false
+        }
         var config = cell.defaultContentConfiguration()
         config.text = item.title
+        // タップ不可の際に色が変わるため指定する
+        config.textProperties.color = .black
         cell.contentConfiguration = config
         return cell
     })
