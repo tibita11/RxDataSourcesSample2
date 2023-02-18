@@ -41,10 +41,11 @@ class MainViewController: UIViewController {
         
         viewModel = MainViewModel()
         setupTabelView()
+        setupNavigationBar()
 
     }
     
-    
+    /// TableViewに関する初期設定
     private func setupTabelView() {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         // カスタマイズheaderの登録
@@ -54,6 +55,20 @@ class MainViewController: UIViewController {
         viewModel.output?.itemsObserver
             .bind(to: tableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
+    }
+    
+    /// NavigationBarに関する初期設定
+    private func setupNavigationBar() {
+        let addButtonItem = UIBarButtonItem(title: "Add New iPhone", style: .plain, target: self, action: #selector(goToRegisterScreen))
+        navigationItem.rightBarButtonItem = addButtonItem
+        
+    }
+    
+    /// iPhone追加ボタンを押すと発火する
+    @objc func goToRegisterScreen() {
+        // 登録画面に遷移
+        let registerVC = RegisterViewController()
+        navigationController?.pushViewController(registerVC, animated: true)
     }
 
 
