@@ -36,14 +36,21 @@ class MainViewController: UIViewController {
         return cell
     })
     
+    
+    // MARK: - View Life Cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         viewModel = MainViewModel()
         setupTabelView()
         setupNavigationBar()
+        viewModel.setupInitialData()
 
     }
+    
+    
+    // MARK: - Action
     
     /// TableViewに関する初期設定
     private func setupTabelView() {
@@ -74,6 +81,9 @@ class MainViewController: UIViewController {
 
 
 }
+
+
+// MARK: - UITableViewDelegate
 
 extension MainViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
