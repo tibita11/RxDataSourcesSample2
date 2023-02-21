@@ -8,6 +8,7 @@ target 'RxDataSourcesSample2' do
   pod 'RxSwift'
   pod 'RxCocoa'
   pod 'RxDataSources'
+  pod 'RxOptional'
 
   # Pods for RxDataSourcesSample2
 

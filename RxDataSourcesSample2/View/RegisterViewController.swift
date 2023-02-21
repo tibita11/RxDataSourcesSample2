@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class RegisterViewController: UIViewController {
 
@@ -15,17 +17,48 @@ class RegisterViewController: UIViewController {
     /// PickerViewに表示する内容
     let iPhoneModels: [String] = ["iPhone 8", "iPhone 8 Plus", "iPhone 11", "iPhone 11 Pro", "iPhone 11 Pro Max", "iPhone 12", "iPhone 12 Pro", "iPhone 12 Pro Max", "iPhone12 mini", "iPhone 13", "iPhone 13 Pro", "iPhone 13 Pro Max", "iPhone13 mini", "iPhone 14", "iPhone 14 Plus", "iPhone 14 Pro", "iPhone 14 Pro Max", "iPhone SE", "iPod touch"]
     
+    var viewModel: RegisterViewModel!
+    /// addButonが押された場合に発火
+    let addButtonRelay = PublishRelay<String>()
+    /// イベント発行できない状態で渡す
+    var addButtonObserver: Observable<String> {
+        return addButtonRelay.asObservable()
+    }
+    
     
     // MARK: - View Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        viewModel = RegisterViewModel()
+        setupInput()
+        setupAddButton()
         setupPickerView()
     }
     
     
     // MARK: - Action
+    
+    /// 初期設定
+    private func setupInput() {
+        let input = RegisterViewModelInput(addButton: addButtonObserver)
+        viewModel.setup(input: input, model: DataStorage())
+    }
+    
+    /// addButtonの初期設定
+    private func setupAddButton() {
+        addButton.addTarget(self, action: #selector(addUserDefaults), for: .touchUpInside)
+    }
+    
+    @objc func addUserDefaults() {
+        guard let text = textView.text, text != "" else {
+            return
+        }
+        addButtonRelay.accept(text)
+        // 前画面に戻る
+        navigationController?.popViewController(animated: true)
+    }
     
     /// PickerViewの初期設定
     private func setupPickerView() {

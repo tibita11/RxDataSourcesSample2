@@ -11,7 +11,7 @@ import RxCocoa
 import RxDataSources
 
 class MainViewController: UIViewController {
-
+    
     @IBOutlet weak var tableView: UITableView!
     
     var viewModel: MainViewModel!
@@ -25,6 +25,7 @@ class MainViewController: UIViewController {
             // section1の場合
             cell.accessoryType = .disclosureIndicator
         } else {
+            cell.accessoryType = .none
             // section1以外はタップ不可
             cell.isUserInteractionEnabled = false
         }
@@ -43,9 +44,15 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         
         viewModel = MainViewModel()
-        setupTabelView()
+        setupTableView()
         setupNavigationBar()
-        viewModel.setupInitialData()
+
+        if UserDefaults.standard.data(forKey: Const.SectionModelKey) == nil {
+            // 初回起動の場合は初期値を設定
+            viewModel.setupInitialData()
+        } else {
+            viewModel.getData()
+        }
 
     }
     
@@ -53,13 +60,13 @@ class MainViewController: UIViewController {
     // MARK: - Action
     
     /// TableViewに関する初期設定
-    private func setupTabelView() {
+    private func setupTableView() {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         // カスタマイズheaderの登録
         tableView.register(UINib(nibName: "TableHeaderView", bundle: nil), forHeaderFooterViewReuseIdentifier: "TableHeaderView")
         tableView.rx.setDelegate(self).disposed(by: disposeBag)
         // TableViewの自動更新
-        viewModel.output?.itemsObserver
+        viewModel.items
             .bind(to: tableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
     }

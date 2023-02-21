@@ -9,64 +9,48 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-protocol MainViewModelOutput {
-    var itemsObserver: Observable<[SectionModel]> { get }
-}
 
-protocol MainViewModelType {
-    var output: MainViewModelOutput? { get }
-}
-
-class MainViewModel: MainViewModelType {
-    var output: MainViewModelOutput?
+class MainViewModel {
     
     var dataStorage: DataStorage!
 
     let disposeBag = DisposeBag()
+    /// dataStoregaからデータを取得した際に格納する
+    var currentData: Observable<[SectionModel]>?
+    /// データを取得又は更新した際に通知を送る
+    var items: Observable<[SectionModel]> {
+        let updateData = UserDefaults.standard.rx.observe(Data.self, Const.SectionModelKey)
+            .map { $0.flatMap { try? JSONDecoder().decode([SectionModel].self, from: $0) } }
+            .filterNil()
+        
+        let currentData = currentData ?? .empty()
+        return Observable.merge(updateData, currentData)
+    }
     
     init() {
-        output = self
         dataStorage = DataStorage()
     }
     
-    var items = BehaviorRelay<[SectionModel]>(value: [])
-    
-    /// テスト用に初期データを設定
+    /// 初期データを設定
     func setupInitialData() {
         // 初期データ
-        let sectionModel = [SectionModel(header: "Setting", image: "swift", items: [ItemData(title: "About this app")]), SectionModel(header: "iPhone in use", image: "iphone", items: [ItemData(title: "iPhone 11")])]
-        
+        let sectionModel = [SectionModel(header: "Setting", image: "swift", items: [ItemData(title: "About this app")]), SectionModel(header: "iPhone in use", image: "iphone", items: [])]
         // 保存処理
         dataStorage.saveData(sectionModel: sectionModel, key: Const.SectionModelKey)
-            .materialize()
-            .subscribe(onNext: { [weak self] event in
-                switch event {
-                case .next:
-                    // 正常に登録できた場合
-                    self!.items.accept(event.element!)
-                case let .error(error as DBError):
-                    // エラー内容表示
-                    print(error.localizedDescription)
-                case .error:
-                    // エラー内容表示
-                    print("エラー")
-                case .completed:
-                    break
-                }
-            })
-            .disposed(by: disposeBag)
-        
-        
     }
     
-}
+    /// ModelのData取得処理を実行する
+    func getData() {
+        guard let result = dataStorage.getData(key: Const.SectionModelKey) else {
+            return
+        }
+        
+        currentData = Observable<[SectionModel]>.create { observer in
+            observer.onNext(result)
+            observer.onCompleted()
+            return Disposables.create()
+        }
 
-
-// MARK: - MainViewModelOutput
-
-extension MainViewModel: MainViewModelOutput {
-    var itemsObserver: Observable<[SectionModel]> {
-        return items.asObservable()
     }
     
 }

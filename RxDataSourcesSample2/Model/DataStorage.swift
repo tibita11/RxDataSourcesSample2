@@ -7,7 +7,6 @@
 
 import Foundation
 import RxSwift
-//import RxCocoa
 
 
 enum DBError: LocalizedError {
@@ -27,23 +26,25 @@ class DataStorage {
     /// UserDefaultsに保存する処理
     /// - Parameter sectionModel: 保存するオブジェクト
     /// - Parameter key: 保存先
-    /// - Returns : onNext, onCompleted, onError
-    func saveData(sectionModel: [SectionModel], key: String) -> Observable<[SectionModel]> {
-        return Observable<[SectionModel]>.create { observer in
-            let jsonEncoder = JSONEncoder()
-            do {
-                // 保存
-                let data = try jsonEncoder.encode(sectionModel)
-                UserDefaults.standard.set(data, forKey: key)
-                // 成功
-                observer.onNext(sectionModel)
-                observer.onCompleted()
-            } catch {
-                // 失敗
-                observer.onError(DBError.saveFailed)
-            }
-            return Disposables.create()
+    func saveData(sectionModel: [SectionModel], key: String) {
+        let jsonEncoder = JSONEncoder()
+        do {
+            let data = try jsonEncoder.encode(sectionModel)
+            UserDefaults.standard.set(data, forKey: key)
+        } catch {
+            print(DBError.saveFailed.localizedDescription)
         }
     }
     
+    /// UserDefaultsから取得する処理
+    /// - Parameter key: 取得先
+    func getData(key: String) -> [SectionModel]? {
+        var result: [SectionModel]?
+        if let data = UserDefaults.standard.data(forKey: key) {
+            result = try? JSONDecoder().decode([SectionModel].self, from: data)
+        } else {
+            return nil
+        }
+        return result
+    }
 }
