@@ -35,6 +35,13 @@ class MainViewController: UIViewController {
         config.textProperties.color = .black
         cell.contentConfiguration = config
         return cell
+    }, canEditRowAtIndexPath: { (dataSource, indexPath) in
+        if indexPath.section == 1 {
+            // section2の場合のみ編集モード可
+            return true
+        } else {
+            return false
+        }
     })
     
     
@@ -101,7 +108,7 @@ extension MainViewController: UITableViewDelegate {
                 // section1の場合、並び替え・削除ボタンは非表示
                 headerView.setup(header: dataSource[section].header, image: dataSource[section].image, isEdit: false)
             } else {
-                headerView.setup(header: dataSource[section].header, image: dataSource[section].image, isEdit: true)
+                headerView.setup(header: dataSource[section].header, image: dataSource[section].image, isEdit: true, delegate: self)
             }
             return headerView
         }
@@ -117,4 +124,16 @@ extension MainViewController: UITableViewDelegate {
         return 100
     }
 
+}
+
+
+// MARK: - TableHeaderViewDelegate
+
+extension MainViewController: TableHeaderViewDelegate {
+    func isEditingChange() {
+        // 編集状態を変更
+        self.tableView.isEditing = !self.tableView.isEditing
+    }
+    
+    
 }
