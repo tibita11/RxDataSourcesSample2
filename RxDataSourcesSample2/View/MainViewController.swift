@@ -68,7 +68,7 @@ class MainViewController: UIViewController {
     
     /// 初期設定
     private func setupInput() {
-        let input = MainViewModelInput(itemDeleted: tableView.rx.itemDeleted.asObservable())
+        let input = MainViewModelInput(itemDeleted: tableView.rx.itemDeleted.asObservable(), itemMoved: tableView.rx.itemMoved.asObservable())
         viewModel.setup(input: input)
     }
     

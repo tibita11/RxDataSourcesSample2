@@ -11,6 +11,7 @@ import RxCocoa
 
 struct MainViewModelInput {
     let itemDeleted: Observable<IndexPath>
+    let itemMoved: Observable<ItemMovedEvent>
 }
 
 protocol MainViewModelType {
@@ -41,6 +42,7 @@ class MainViewModel: MainViewModelType {
     
     /// 初期設定
     func setup(input: MainViewModelInput) {
+        // セルが削除された際に発火
         input.itemDeleted.subscribe(onNext: { [weak self] indexPath in
             // 現在のデータからindexPath番目を削除
             guard var data = self!.dataStorage.getData(key: Const.SectionModelKey) else {
@@ -48,6 +50,23 @@ class MainViewModel: MainViewModelType {
             }
             data[indexPath.section].items.remove(at: indexPath.row)
             // 削除後のデータを保存
+            self!.dataStorage.saveData(sectionModel: data, key: Const.SectionModelKey)
+        })
+        .disposed(by: disposeBag)
+        
+        // セルが移動された際に発火
+        input.itemMoved.subscribe(onNext: { [weak self] movedEvent in
+            let sourceIndex = movedEvent.sourceIndex
+            let destinationIndex = movedEvent.destinationIndex
+            // 現在のデータを取得
+            guard var data = self!.dataStorage.getData(key: Const.SectionModelKey) else {
+                return
+            }
+            // sourceIndex番目から削除し、destinationIndex番目に挿入
+            let item = data[sourceIndex.section].items[sourceIndex.row]
+            data[sourceIndex.section].items.remove(at: sourceIndex.row)
+            data[destinationIndex.section].items.insert(item, at: destinationIndex.row)
+            // 加工後のデータを保存
             self!.dataStorage.saveData(sectionModel: data, key: Const.SectionModelKey)
         })
         .disposed(by: disposeBag)
