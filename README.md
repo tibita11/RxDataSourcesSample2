@@ -18,3 +18,4 @@ UserDefaultsを使用してリアルタイム処理を実装できるように�
 ## 使用した技術
 MVVM, RxSwift, RxCocoa, RxOptional, RxDataSources, UserDefaults
 ## アプリの使い方
+![RxDataSourcesSample2](https://user-images.githubusercontent.com/108079580/220533881-d7a71ddb-c562-4de1-8fbc-848da8298581.gif)
