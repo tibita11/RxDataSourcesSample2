@@ -82,6 +82,21 @@ class MainViewController: UIViewController {
         viewModel.items
             .bind(to: tableView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
+        // セルがタップされた際の遷移処理
+        tableView.rx.itemSelected
+            .subscribe(onNext: { [weak self] indexPath in
+                guard let item = self?.dataSource[indexPath] else { return }
+                self?.tableView.deselectRow(at: indexPath, animated: true)
+                
+                switch item.title {
+                case "About this app":
+                    // 次の画面に遷移
+                    self?.navigationController?.pushViewController(AppDescriptionViewController(), animated: true)
+                default:
+                    break
+                }
+            })
+            .disposed(by: disposeBag)
     }
     
     /// NavigationBarに関する初期設定
