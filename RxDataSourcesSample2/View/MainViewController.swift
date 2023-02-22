@@ -43,6 +43,16 @@ class MainViewController: UIViewController {
         }
     })
     
+    /// headerの編集ボタンTitleをisEditingから判別して返す
+    var editButtonTitle: String {
+        if tableView.isEditing {
+            // 編集中の場合 "Done"
+            return EditButtonTitle.done.rawValue
+        } else {
+            // 編集中でない場合 "Sort・Delete"
+            return EditButtonTitle.edit.rawValue
+        }
+    }
     
     // MARK: - View Life Cycle
     
@@ -127,9 +137,9 @@ extension MainViewController: UITableViewDelegate {
         if let headerView = view as? TableHeaderView {
             if section == 0 {
                 // section0の場合、並び替え・削除ボタンは非表示
-                headerView.setup(header: dataSource[section].header, image: dataSource[section].image, isEdit: false)
+                headerView.setup(header: dataSource[section].header, image: dataSource[section].image)
             } else {
-                headerView.setup(header: dataSource[section].header, image: dataSource[section].image, isEdit: true, delegate: self)
+                headerView.setup(header: dataSource[section].header, image: dataSource[section].image, editButtontitle: editButtonTitle, delegate: self)
             }
             return headerView
         }
@@ -151,9 +161,11 @@ extension MainViewController: UITableViewDelegate {
 // MARK: - TableHeaderViewDelegate
 
 extension MainViewController: TableHeaderViewDelegate {
-    func isEditingChange() {
+    func isEditingChange(editButton: UIButton) {
         // 編集状態を変更
         tableView.isEditing = !tableView.isEditing
+        // 編集ボタンのタイトルを変更
+        editButton.setTitle(editButtonTitle, for: .normal)
     }
     
     
