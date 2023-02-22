@@ -9,8 +9,16 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+struct MainViewModelInput {
+    let itemDeleted: Observable<IndexPath>
+}
 
-class MainViewModel {
+protocol MainViewModelType {
+    func setup(input: MainViewModelInput)
+}
+
+
+class MainViewModel: MainViewModelType {
     
     var dataStorage: DataStorage!
 
@@ -29,6 +37,20 @@ class MainViewModel {
     
     init() {
         dataStorage = DataStorage()
+    }
+    
+    /// 初期設定
+    func setup(input: MainViewModelInput) {
+        input.itemDeleted.subscribe(onNext: { [weak self] indexPath in
+            // 現在のデータからindexPath番目を削除
+            guard var data = self!.dataStorage.getData(key: Const.SectionModelKey) else {
+                return
+            }
+            data[indexPath.section].items.remove(at: indexPath.row)
+            // 削除後のデータを保存
+            self!.dataStorage.saveData(sectionModel: data, key: Const.SectionModelKey)
+        })
+        .disposed(by: disposeBag)
     }
     
     /// 初期データを設定

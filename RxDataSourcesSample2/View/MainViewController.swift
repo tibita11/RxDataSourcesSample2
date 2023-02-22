@@ -22,22 +22,21 @@ class MainViewController: UIViewController {
         (dataSource, tableview, indexPath, item) in
         let cell = tableview.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         if indexPath.section == 0 {
-            // section1の場合
+            // section0の場合
             cell.accessoryType = .disclosureIndicator
+            cell.selectionStyle = .default
         } else {
             cell.accessoryType = .none
-            // section1以外はタップ不可
-            cell.isUserInteractionEnabled = false
+            // section0以外はタップ不可
+            cell.selectionStyle = .none
         }
         var config = cell.defaultContentConfiguration()
         config.text = item.title
-        // タップ不可の際に色が変わるため指定する
-        config.textProperties.color = .black
         cell.contentConfiguration = config
         return cell
     }, canEditRowAtIndexPath: { (dataSource, indexPath) in
         if indexPath.section == 1 {
-            // section2の場合のみ編集モード可
+            // section1の場合のみ編集モード可
             return true
         } else {
             return false
@@ -53,6 +52,7 @@ class MainViewController: UIViewController {
         viewModel = MainViewModel()
         setupTableView()
         setupNavigationBar()
+        setupInput()
 
         if UserDefaults.standard.data(forKey: Const.SectionModelKey) == nil {
             // 初回起動の場合は初期値を設定
@@ -65,6 +65,12 @@ class MainViewController: UIViewController {
     
     
     // MARK: - Action
+    
+    /// 初期設定
+    private func setupInput() {
+        let input = MainViewModelInput(itemDeleted: tableView.rx.itemDeleted.asObservable())
+        viewModel.setup(input: input)
+    }
     
     /// TableViewに関する初期設定
     private func setupTableView() {
@@ -105,7 +111,7 @@ extension MainViewController: UITableViewDelegate {
         let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: "TableHeaderView")
         if let headerView = view as? TableHeaderView {
             if section == 0 {
-                // section1の場合、並び替え・削除ボタンは非表示
+                // section0の場合、並び替え・削除ボタンは非表示
                 headerView.setup(header: dataSource[section].header, image: dataSource[section].image, isEdit: false)
             } else {
                 headerView.setup(header: dataSource[section].header, image: dataSource[section].image, isEdit: true, delegate: self)
@@ -132,7 +138,7 @@ extension MainViewController: UITableViewDelegate {
 extension MainViewController: TableHeaderViewDelegate {
     func isEditingChange() {
         // 編集状態を変更
-        self.tableView.isEditing = !self.tableView.isEditing
+        tableView.isEditing = !tableView.isEditing
     }
     
     
