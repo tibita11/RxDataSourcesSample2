@@ -154,6 +154,12 @@ extension MainViewController: UITableViewDelegate {
         // 下部に余白
         return 100
     }
+    
+    func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
+        // セクションをまたいだ移動は禁止
+        if sourceIndexPath.section == proposedDestinationIndexPath.section { return proposedDestinationIndexPath }
+        return sourceIndexPath
+    }
 
 }
 
