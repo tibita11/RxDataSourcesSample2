@@ -32,6 +32,8 @@ class TableHeaderView: UITableViewHeaderFooterView {
     func setup(header: String, image: String, editButtontitle: String? = nil, delegate: TableHeaderViewDelegate? = nil) {
         changeEditButton.layer.cornerRadius = 15
         changeEditButton.layer.masksToBounds = true
+        // 前のデータが再利用されないようボタンを初期化
+        changeEditButton.setTitle("", for: .normal)
         
         headerLabel.text = header
         headerImageView.image = UIImage(systemName: image)
